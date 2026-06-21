@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public int correctSyllables = 1;
     private int berriesInBowl = 0;
 
-    void Start()
+    void Awake()
     {
         bowl = GameObject.FindWithTag("Bowl").transform;
 
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
 
                 berry.transform.SetParent(bowlSpots[i], false);
                 berry.transform.localPosition = Vector3.zero;
-                berry.transform.localScale = Vector3.one * 0.3f;
+                berry.transform.localScale = Vector3.one * 0.7f;
 
                 bowlSpotTaken[i] = true;
                 berriesInBowlSpots[i] = berry;
