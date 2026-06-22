@@ -1,4 +1,7 @@
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,6 +10,7 @@ public class GameManager : MonoBehaviour
     private bool[] bowlSpotTaken;
     private GameObject[] berriesInBowlSpots;
 
+    public TMP_Text resultText;
     public Transform berryTray;
 
     public Transform[] berrySpots;
@@ -14,6 +18,18 @@ public class GameManager : MonoBehaviour
 
     public int correctSyllables = 1;
     private int berriesInBowl = 0;
+    public Image lunaImage;
+    private bool inputLocked = false;
+
+    public Sprite lunaNormalSprite;
+    public Sprite lunaThinkingSprite;
+
+    public float feedbackDelay = 2f;
+
+    public bool IsInputLocked()
+{
+    return inputLocked;
+}
 
     void Awake()
     {
@@ -126,15 +142,64 @@ public class GameManager : MonoBehaviour
         Debug.Log("Berry tray is full");
     }
 
-    public void CheckAnswer()
+public void CheckAnswer()
+{
+    if (berriesInBowl == correctSyllables)
     {
-        if (berriesInBowl == correctSyllables)
+        resultText.text = "Správně! Luna má radost!";
+        ResetBowl();
+    }
+    else
+    {
+        StartCoroutine(WrongAnswerRoutine());
+    }
+}
+    private void ResetBowl()
+{
+    GameObject[] berriesToReturn = new GameObject[berriesInBowlSpots.Length];
+
+    for (int i = 0; i < berriesInBowlSpots.Length; i++)
+    {
+        berriesToReturn[i] = berriesInBowlSpots[i];
+    }
+
+    for (int i = 0; i < berriesToReturn.Length; i++)
+    {
+        if (berriesToReturn[i] != null)
         {
-            Debug.Log("Správně!");
-        }
-        else
-        {
-            Debug.Log("Zkusíme to ještě jednou.");
+            RemoveFromBowl(berriesToReturn[i]);
+            ReturnBerryToTray(berriesToReturn[i]);
+
+            Berry berryScript = berriesToReturn[i].GetComponent<Berry>();
+            if (berryScript != null)
+            {
+                berryScript.SetInBowl(false);
+            }
         }
     }
+}
+private IEnumerator WrongAnswerRoutine()
+{
+    inputLocked = true;
+
+    resultText.text = "Zkusíme to ještě jednou.";
+
+    if (lunaImage != null && lunaThinkingSprite != null)
+    {
+        lunaImage.sprite = lunaThinkingSprite;
+    }
+
+    yield return new WaitForSeconds(feedbackDelay);
+
+    ResetBowl();
+
+    if (lunaImage != null && lunaNormalSprite != null)
+    {
+        lunaImage.sprite = lunaNormalSprite;
+    }
+
+    resultText.text = "";
+
+    inputLocked = false;
+}
 }

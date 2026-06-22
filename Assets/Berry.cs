@@ -14,6 +14,11 @@ public class Berry : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (gameManager.IsInputLocked())
+        {
+            return;
+        }
+
         if (isInBowl)
         {
             gameManager.RemoveFromBowl(gameObject);
@@ -29,5 +34,10 @@ public class Berry : MonoBehaviour, IPointerClickHandler
                 isInBowl = true;
             }
         }
+    }
+
+    public void SetInBowl(bool value)
+    {
+        isInBowl = value;
     }
 }
