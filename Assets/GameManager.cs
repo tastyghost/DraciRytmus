@@ -2,9 +2,17 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+   public Image energyBubbleImage;
+    public Sprite[] energySprites;
+
+    private int energy = 0;
+    public GameObject exercisePanel;
+    public GameObject successPanel;
+    public ParticleSystem confetti;
     private Transform bowl;
     private Transform[] bowlSpots;
     private bool[] bowlSpotTaken;
@@ -23,13 +31,20 @@ public class GameManager : MonoBehaviour
 
     public Sprite lunaNormalSprite;
     public Sprite lunaThinkingSprite;
+     public Image wordImage;
+
+    private List<WordData> words = new List<WordData>();
+    private WordData currentWord;
+
 
     public float feedbackDelay = 2f;
 
     public bool IsInputLocked()
+   
 {
     return inputLocked;
 }
+
 
     void Awake()
     {
@@ -51,6 +66,8 @@ public class GameManager : MonoBehaviour
         {
             berrySpots[i] = berryTray.GetChild(i);
         }
+        LoadWordsFromCsv();
+        LoadRandomWord();
     }
 
     public void RegisterBerryInTray(GameObject berry)
@@ -144,10 +161,14 @@ public class GameManager : MonoBehaviour
 
 public void CheckAnswer()
 {
+    if (inputLocked)
+    {
+        return;
+    }
+
     if (berriesInBowl == correctSyllables)
     {
-        resultText.text = "Správně! Luna má radost!";
-        ResetBowl();
+        ShowSuccessScreen();
     }
     else
     {
@@ -202,4 +223,124 @@ private IEnumerator WrongAnswerRoutine()
 
     inputLocked = false;
 }
+private void LoadWordsFromCsv()
+{
+    TextAsset csvFile = Resources.Load<TextAsset>("words");
+
+    if (csvFile == null)
+    {
+        Debug.LogError("CSV file not found. Make sure it is in Assets/Resources/words.csv");
+        return;
+    }
+
+    string[] lines = csvFile.text.Split('\n');
+
+    for (int i = 1; i < lines.Length; i++)
+    {
+        string line = lines[i].Trim();
+
+        if (string.IsNullOrEmpty(line))
+        {
+            continue;
+        }
+
+        string[] values = line.Split(';');
+
+        string word = values[0];
+        int syllables = int.Parse(values[1]);
+        string topic = values[2];
+        string pictureName = values[3];
+
+        words.Add(new WordData(word, syllables, topic, pictureName));
+    }
+
+    Debug.Log("Loaded words: " + words.Count);
+}
+
+private void LoadRandomWord()
+{
+    if (words.Count == 0)
+    {
+        Debug.LogError("No words loaded.");
+        return;
+    }
+
+    int index = Random.Range(0, words.Count);
+    currentWord = words[index];
+
+    correctSyllables = currentWord.syllables;
+
+    string imageName = currentWord.pictureName.Replace(".png", "");
+    Sprite sprite = Resources.Load<Sprite>("WordCards/" + imageName);
+
+    if (sprite == null)
+    {
+        Debug.LogError("Image not found: " + imageName);
+        return;
+    }
+
+    wordImage.sprite = sprite;
+
+    Debug.Log("Current word: " + currentWord.word + ", syllables: " + currentWord.syllables);
+}
+
+private IEnumerator CorrectAnswerRoutine()
+{
+    inputLocked = true;
+
+    resultText.text = "Správně! Luna má radost!";
+
+    yield return new WaitForSeconds(feedbackDelay);
+
+    ResetBowl();
+
+    LoadRandomWord();
+
+    resultText.text = "";
+
+    inputLocked = false;
+}
+
+private void ShowSuccessScreen()
+{
+    inputLocked = true;
+
+    exercisePanel.SetActive(false);
+    successPanel.SetActive(true);
+
+    if (confetti != null)
+{
+    confetti.Clear();
+    confetti.Play();
+}
+energy++;
+
+if (energy > 5)
+{
+    energy = 5;
+}
+
+UpdateEnergyBubble();
+}
+
+public void NextWord()
+{
+    ResetBowl();
+    LoadRandomWord();
+
+    successPanel.SetActive(false);
+    exercisePanel.SetActive(true);
+
+    resultText.text = "";
+    inputLocked = false;
+}
+
+private void UpdateEnergyBubble()
+{
+    if (energyBubbleImage != null && energySprites != null && energySprites.Length > energy)
+    {
+        energyBubbleImage.sprite = energySprites[energy];
+    }
+}
+
 }

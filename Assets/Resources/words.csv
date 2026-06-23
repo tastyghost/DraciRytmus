@@ -1,0 +1,61 @@
+Word;Syllables;Topic;PictureName
+dum;1;doma;Word_card_dum.png
+okno;2;doma;Word_card_okno.png
+pohovka;3;doma;Word_card_pohovka.png
+televize;4;doma;Word_card_televize.png
+dvere;2;doma;Word_card_dvere.png
+zrcadlo;3;doma;Word_card_zrcadlo.png
+mikrovlnka;4;doma;Word_card_mikrovlnka.png
+vana;2;doma;Word_card_vana.png
+lednice;3;doma;Word_card_lednice.png
+postel;2;doma;Word_card_postel.png
+perina;3;doma;Word_card_perina.png
+vlak;1;dopravn¡ prostýedky;Word_card_vlak.png
+auto ;2;dopravn¡ prostýedky;Word_card_auto .png
+raketa;3;dopravn¡ prostýedky;Word_card_raketa.png
+kolobezka;4;dopravn¡ prostýedky;Word_card_kolobezka.png
+tank;1;dopravn¡ prostýedky;Word_card_tank.png
+traktor;2;dopravn¡ prostýedky;Word_card_traktor.png
+autobus;3;dopravn¡ prostýedky;Word_card_autobus.png
+kombajn;2;dopravn¡ prostýedky;Word_card_kombajn.png
+letadlo;3;dopravn¡ prostýedky;Word_card_letadlo.png
+kolo;2;dopravn¡ prostýedky;Word_card_kolo.png
+motorka;3;dopravn¡ prostýedky;Word_card_motorka.png
+syr;1;j¡dlo;Word_card_syr.png
+sunka;2;j¡dlo;Word_card_sunka.png
+spagety;3;j¡dlo;Word_card_spagety.png
+marmelada;4;j¡dlo;Word_card_marmelada.png
+med;1;j¡dlo;Word_card_med.png
+meloun;2;j¡dlo;Word_card_meloun.png
+zmrzlina;3;j¡dlo;Word_card_zmrzlina.png
+cokolada;4;j¡dlo;Word_card_cokolada.png
+dort;1;j¡dlo;Word_card_dort.png
+pizza;2;j¡dlo;Word_card_pizza.png
+jahoda;3;j¡dlo;Word_card_jahoda.png
+brokolice;4;j¡dlo;Word_card_brokolice.png
+strom;1;pý¡roda;Word_card_strom.png
+trava;2;pý¡roda;Word_card_trava.png
+maliny;3;pý¡roda;Word_card_malina.png
+pampeliska;4;pý¡roda;Word_card_pampeliska.png
+ker;1;pý¡roda;Word_card_ker.png
+kamen;2;pý¡roda;Word_card_kamen.png
+boruvky;3;pý¡roda;Word_card_boruvka.png
+sedmikraska;4;pý¡roda;Word_card_sedmikraska.png
+mrak;1;pý¡roda;Word_card_mrak.png
+slunce;2;pý¡roda;Word_card_slunce.png
+beruska;3;pý¡roda;Word_card_beruska.png
+snih;1;pý¡roda;Word_card_snih.png
+houba;2;pý¡roda;Word_card_houba.png
+brouk;1;pý¡roda;Word_card_brouk.png
+motyl;2;pý¡roda;Word_card_motyl.png
+pes;1;zv¡ýata;Word_card_pes.png
+kocka;2;zv¡ýata;Word_card_kocka.png
+krokodyl;3;zv¡ýata;Word_card_krokodyl.png
+nosorozec;4;zv¡ýata;Word_card_nosorozec.png
+slon;1;zv¡ýata;Word_card_slon.png
+prase;2;zv¡ýata;Word_card_prase.png
+zirafa;3;zv¡ýata;Word_card_zirafa.png
+chobotnice;4;zv¡ýata;Word_card_chobotnice.png
+had;1;zv¡ýata;Word_card_had.png
+kohout;2;zv¡ýata;Word_card_kohout.png
+slepice;3;zv¡ýata;Word_card_slepice.png
