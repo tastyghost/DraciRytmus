@@ -6,7 +6,10 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-   public Image energyBubbleImage;
+    public GameObject companionPanel;
+    public Image companionImage;
+    public Sprite currentCompanionSprite;
+    public Image energyBubbleImage;
     public Sprite[] energySprites;
 
     private int energy = 0;
@@ -325,6 +328,12 @@ UpdateEnergyBubble();
 
 public void NextWord()
 {
+    if (energy >= 5)
+    {
+        ShowCompanionPanel();
+        return;
+    }
+
     ResetBowl();
     LoadRandomWord();
 
@@ -342,5 +351,33 @@ private void UpdateEnergyBubble()
         energyBubbleImage.sprite = energySprites[energy];
     }
 }
+
+private void ShowCompanionPanel()
+{
+    successPanel.SetActive(false);
+    companionPanel.SetActive(true);
+
+    if (companionImage != null && currentCompanionSprite != null)
+    {
+        companionImage.sprite = currentCompanionSprite;
+    }
+}
+
+public void ContinueAfterCompanion()
+{
+    energy = 0;
+    UpdateEnergyBubble();
+
+    companionPanel.SetActive(false);
+    exercisePanel.SetActive(true);
+
+    ResetBowl();
+    LoadRandomWord();
+
+    resultText.text = "";
+    inputLocked = false;
+}
+
+
 
 }
