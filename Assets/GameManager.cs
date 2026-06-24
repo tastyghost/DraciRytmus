@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject mapPanel;
     public GameObject companionPanel;
     public Image companionImage;
     public Sprite currentCompanionSprite;
@@ -329,10 +330,10 @@ UpdateEnergyBubble();
 public void NextWord()
 {
     if (energy >= 5)
-    {
-        ShowCompanionPanel();
-        return;
-    }
+{
+    ShowMapPanel();
+    return;
+}
 
     ResetBowl();
     LoadRandomWord();
@@ -378,6 +379,26 @@ public void ContinueAfterCompanion()
     inputLocked = false;
 }
 
+private void ShowMapPanel()
+{
+    successPanel.SetActive(false);
+    mapPanel.SetActive(true);
 
+    inputLocked = true;
+}
+
+public void ContinueFromMap()
+{
+    mapPanel.SetActive(false);
+    exercisePanel.SetActive(true);
+
+    energy = 0;
+    UpdateEnergyBubble();
+
+    ResetBowl();
+    LoadRandomWord();
+
+    inputLocked = false;
+}
 
 }
