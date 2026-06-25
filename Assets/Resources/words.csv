@@ -9,9 +9,8 @@ mikrovlnka;4;doma;Word_card_mikrovlnka.png
 vana;2;doma;Word_card_vana.png
 lednice;3;doma;Word_card_lednice.png
 postel;2;doma;Word_card_postel.png
-perina;3;doma;Word_card_perina.png
 vlak;1;dopravn¡ prostýedky;Word_card_vlak.png
-auto ;2;dopravn¡ prostýedky;Word_card_auto .png
+auto;2;dopravn¡ prostýedky;Word_card_auto.png
 raketa;3;dopravn¡ prostýedky;Word_card_raketa.png
 kolobezka;4;dopravn¡ prostýedky;Word_card_kolobezka.png
 tank;1;dopravn¡ prostýedky;Word_card_tank.png
@@ -31,7 +30,7 @@ zmrzlina;3;j¡dlo;Word_card_zmrzlina.png
 cokolada;4;j¡dlo;Word_card_cokolada.png
 dort;1;j¡dlo;Word_card_dort.png
 pizza;2;j¡dlo;Word_card_pizza.png
-jahoda;3;j¡dlo;Word_card_jahoda.png
+jahody;3;j¡dlo;Word_card_jahody.png
 brokolice;4;j¡dlo;Word_card_brokolice.png
 strom;1;pý¡roda;Word_card_strom.png
 trava;2;pý¡roda;Word_card_trava.png

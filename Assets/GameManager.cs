@@ -6,6 +6,18 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    
+    public Sprite startBackground;
+    public Image successBackgroundImage;
+    public Image exerciseBackgroundImage;
+    public Image exerciseCompanionImage;
+    private bool isInLocation = false;
+    public LocationData[] locations;
+    private int currentLocationIndex = 0;
+
+    public Image locationIntroBackgroundImage;
+    public TMP_Text locationIntroText;
+    public GameObject locationIntroPanel;
     public GameObject mapPanel;
     public GameObject companionPanel;
     public Image companionImage;
@@ -52,6 +64,10 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        if (exerciseCompanionImage != null)
+{
+           exerciseCompanionImage.gameObject.SetActive(false);
+}
         bowl = GameObject.FindWithTag("Bowl").transform;
 
         bowlSpots = new Transform[bowl.childCount];
@@ -72,6 +88,13 @@ public class GameManager : MonoBehaviour
         }
         LoadWordsFromCsv();
         LoadRandomWord();
+        exercisePanel.SetActive(true);
+        PrepareStartVisuals();
+
+    successPanel.SetActive(false);
+    companionPanel.SetActive(false);
+    mapPanel.SetActive(false);
+    locationIntroPanel.SetActive(false);
     }
 
     public void RegisterBerryInTray(GameObject berry)
@@ -309,31 +332,50 @@ private void ShowSuccessScreen()
 {
     inputLocked = true;
 
+    if (isInLocation)
+    {
+        PrepareLocationVisuals();
+    }
+    else
+    {
+        PrepareStartVisuals();
+    }
+
+    energy++;
+
+    if (energy > 5)
+    {
+        energy = 5;
+    }
+
+    UpdateEnergyBubble();
+
     exercisePanel.SetActive(false);
     successPanel.SetActive(true);
 
     if (confetti != null)
-{
-    confetti.Clear();
-    confetti.Play();
-}
-energy++;
-
-if (energy > 5)
-{
-    energy = 5;
-}
-
-UpdateEnergyBubble();
+    {
+        confetti.gameObject.SetActive(true);
+        confetti.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        confetti.Play();
+    }
 }
 
 public void NextWord()
 {
     if (energy >= 5)
-{
-    ShowMapPanel();
-    return;
-}
+    {
+        if (isInLocation)
+        {
+            ShowCompanionPanel();
+        }
+        else
+        {
+            ShowMapPanel();
+        }
+
+        return;
+    }
 
     ResetBowl();
     LoadRandomWord();
@@ -358,10 +400,17 @@ private void ShowCompanionPanel()
     successPanel.SetActive(false);
     companionPanel.SetActive(true);
 
-    if (companionImage != null && currentCompanionSprite != null)
+    if (locations != null && locations.Length > 0)
     {
-        companionImage.sprite = currentCompanionSprite;
+        LocationData currentLocation = locations[currentLocationIndex];
+
+        if (companionImage != null && currentLocation.companion != null)
+        {
+            companionImage.sprite = currentLocation.companion;
+        }
     }
+
+    inputLocked = true;
 }
 
 public void ContinueAfterCompanion()
@@ -369,16 +418,25 @@ public void ContinueAfterCompanion()
     energy = 0;
     UpdateEnergyBubble();
 
+    isInLocation = false;
+
     companionPanel.SetActive(false);
-    exercisePanel.SetActive(true);
+
+    currentLocationIndex++;
+
+    if (currentLocationIndex >= locations.Length)
+    {
+        currentLocationIndex = locations.Length - 1;
+        Debug.Log("Všechny lokace dokončeny!");
+        return;
+    }
+
+    mapPanel.SetActive(true);
 
     ResetBowl();
-    LoadRandomWord();
-
     resultText.text = "";
-    inputLocked = false;
+    inputLocked = true;
 }
-
 private void ShowMapPanel()
 {
     successPanel.SetActive(false);
@@ -387,18 +445,127 @@ private void ShowMapPanel()
     inputLocked = true;
 }
 
-public void ContinueFromMap()
+public void StartLocationExercise()
 {
-    mapPanel.SetActive(false);
+    locationIntroPanel.SetActive(false);
     exercisePanel.SetActive(true);
+
+    isInLocation = true;
 
     energy = 0;
     UpdateEnergyBubble();
 
+    PrepareLocationVisuals();
+
     ResetBowl();
     LoadRandomWord();
 
+    resultText.text = "";
     inputLocked = false;
+}
+
+private void PrepareLocationVisuals()
+{
+    if (locations == null || locations.Length == 0)
+    {
+        Debug.LogError("No locations set in GameManager.");
+        return;
+    }
+
+    if (currentLocationIndex < 0 || currentLocationIndex >= locations.Length)
+    {
+        Debug.LogError("Invalid location index: " + currentLocationIndex);
+        return;
+    }
+
+    LocationData currentLocation = locations[currentLocationIndex];
+
+    if (exerciseBackgroundImage != null && currentLocation.background != null)
+    {
+        exerciseBackgroundImage.sprite = currentLocation.background;
+    }
+
+    if (successBackgroundImage != null && currentLocation.background != null)
+    {
+        successBackgroundImage.sprite = currentLocation.background;
+    }
+
+    if (exerciseCompanionImage != null && currentLocation.companion != null)
+    {
+        exerciseCompanionImage.sprite = currentLocation.companion;
+        exerciseCompanionImage.gameObject.SetActive(true);
+    }
+}
+
+public void SelectLocationFromMap(int locationIndex)
+{
+    if (locations == null || locations.Length == 0)
+    {
+        Debug.LogError("No locations set in GameManager.");
+        return;
+    }
+
+    if (locationIndex < 0 || locationIndex >= locations.Length)
+    {
+        Debug.LogError("Invalid location index: " + locationIndex);
+        return;
+    }
+
+    currentLocationIndex = locationIndex;
+
+    mapPanel.SetActive(false);
+
+    PrepareLocationIntro();
+
+    locationIntroPanel.SetActive(true);
+    inputLocked = true;
+}
+
+
+
+private void PrepareLocationIntro()
+{
+    if (locations == null || locations.Length == 0)
+    {
+        Debug.LogError("No locations set in GameManager.");
+        return;
+    }
+
+    if (currentLocationIndex < 0 || currentLocationIndex >= locations.Length)
+    {
+        Debug.LogError("Invalid location index: " + currentLocationIndex);
+        return;
+    }
+
+    LocationData currentLocation = locations[currentLocationIndex];
+
+    if (locationIntroBackgroundImage != null && currentLocation.background != null)
+    {
+        locationIntroBackgroundImage.sprite = currentLocation.background;
+    }
+
+    if (locationIntroText != null)
+    {
+        locationIntroText.text = currentLocation.introText;
+    }
+}
+
+private void PrepareStartVisuals()
+{
+    if (exerciseBackgroundImage != null && startBackground != null)
+    {
+        exerciseBackgroundImage.sprite = startBackground;
+    }
+
+    if (successBackgroundImage != null && startBackground != null)
+    {
+        successBackgroundImage.sprite = startBackground;
+    }
+
+    if (exerciseCompanionImage != null)
+    {
+        exerciseCompanionImage.gameObject.SetActive(false);
+    }
 }
 
 }
