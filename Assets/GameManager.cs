@@ -6,7 +6,21 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    
+    public GameObject companionCollectionPanel;
+    public Image[] collectionCompanionImages;
+    public GameObject[] collectionLocks;
+    public Vector2 overlayForMiddleAndTopPosition;
+    public Vector2 overlayForMiddleAndTopSize;
+
+    public Vector2 overlayForTopOnlyPosition;
+    public Vector2 overlayForTopOnlySize;
+    public Button[] locationButtons;
+    public GameObject[] locationLocks;
+    public GameObject[] locationGlows;
+    public GameObject[] locationCompletedIcons;
+
+    public GameObject lockedTopOverlay;
+    public RectTransform lockedTopOverlayRect;
     public Sprite startBackground;
     public Image successBackgroundImage;
     public Image exerciseBackgroundImage;
@@ -14,6 +28,9 @@ public class GameManager : MonoBehaviour
     private bool isInLocation = false;
     public LocationData[] locations;
     private int currentLocationIndex = 0;
+
+    private int unlockedLocationCount = 2;
+    private bool[] completedLocations;
 
     public Image locationIntroBackgroundImage;
     public TMP_Text locationIntroText;
@@ -95,6 +112,8 @@ public class GameManager : MonoBehaviour
     companionPanel.SetActive(false);
     mapPanel.SetActive(false);
     locationIntroPanel.SetActive(false);
+    completedLocations = new bool[locations.Length];
+    UpdateMapLocks();
     }
 
     public void RegisterBerryInTray(GameObject berry)
@@ -420,23 +439,20 @@ public void ContinueAfterCompanion()
 
     isInLocation = false;
 
-    companionPanel.SetActive(false);
-
-    currentLocationIndex++;
-
-    if (currentLocationIndex >= locations.Length)
+    if (completedLocations != null && currentLocationIndex < completedLocations.Length)
     {
-        currentLocationIndex = locations.Length - 1;
-        Debug.Log("Všechny lokace dokončeny!");
-        return;
+        completedLocations[currentLocationIndex] = true;
+        UpdateUnlockedLocations();
     }
 
+    companionPanel.SetActive(false);
     mapPanel.SetActive(true);
 
     ResetBowl();
     resultText.text = "";
     inputLocked = true;
 }
+
 private void ShowMapPanel()
 {
     successPanel.SetActive(false);
@@ -511,6 +527,12 @@ public void SelectLocationFromMap(int locationIndex)
         return;
     }
 
+    if (locationIndex >= unlockedLocationCount)
+    {
+        Debug.Log("Location is locked: " + locationIndex);
+        return;
+    }
+
     currentLocationIndex = locationIndex;
 
     mapPanel.SetActive(false);
@@ -567,5 +589,156 @@ private void PrepareStartVisuals()
         exerciseCompanionImage.gameObject.SetActive(false);
     }
 }
+private void UpdateMapLocks()
+{
+    for (int i = 0; i < locationButtons.Length; i++)
+    {
+        bool isUnlocked = i < unlockedLocationCount;
+        bool isCompleted =
+            completedLocations != null &&
+            i < completedLocations.Length &&
+            completedLocations[i];
+
+        if (locationButtons[i] != null)
+        {
+            // Dokončenou lokaci už nepůjde znovu vybrat.
+            locationButtons[i].interactable = isUnlocked && !isCompleted;
+        }
+
+        if (locationLocks != null && i < locationLocks.Length && locationLocks[i] != null)
+        {
+            locationLocks[i].SetActive(!isUnlocked);
+        }
+
+        if (locationGlows != null && i < locationGlows.Length && locationGlows[i] != null)
+        {
+            // Glow jen u odemčených, ale nedokončených lokací.
+            locationGlows[i].SetActive(isUnlocked && !isCompleted);
+        }
+
+        if (locationCompletedIcons != null && i < locationCompletedIcons.Length && locationCompletedIcons[i] != null)
+        {
+            locationCompletedIcons[i].SetActive(isCompleted);
+        }
+    }
+
+    UpdateLockedOverlay();
+}
+
+private void UpdateUnlockedLocations()
+{
+    bool firstPairCompleted =
+        completedLocations.Length > 1 &&
+        completedLocations[0] &&
+        completedLocations[1];
+
+    bool secondPairCompleted =
+        completedLocations.Length > 3 &&
+        completedLocations[2] &&
+        completedLocations[3];
+
+    if (secondPairCompleted)
+    {
+        unlockedLocationCount = 5;
+    }
+    else if (firstPairCompleted)
+    {
+        unlockedLocationCount = 4;
+    }
+    else
+    {
+        unlockedLocationCount = 2;
+    }
+
+    UpdateMapLocks();
+}
+
+private void UpdateLockedOverlay()
+{
+    if (lockedTopOverlay == null || lockedTopOverlayRect == null)
+    {
+        return;
+    }
+
+    if (unlockedLocationCount >= locations.Length)
+    {
+        lockedTopOverlay.SetActive(false);
+        return;
+    }
+
+    lockedTopOverlay.SetActive(true);
+
+    if (unlockedLocationCount <= 2)
+    {
+        lockedTopOverlayRect.anchoredPosition = overlayForMiddleAndTopPosition;
+        lockedTopOverlayRect.sizeDelta = overlayForMiddleAndTopSize;
+    }
+    else if (unlockedLocationCount <= 4)
+    {
+        lockedTopOverlayRect.anchoredPosition = overlayForTopOnlyPosition;
+        lockedTopOverlayRect.sizeDelta = overlayForTopOnlySize;
+    }
+}
+
+public void OpenCompanionCollection()
+{
+    UpdateCompanionCollection();
+
+    exercisePanel.SetActive(false);
+    successPanel.SetActive(false);
+    mapPanel.SetActive(false);
+    locationIntroPanel.SetActive(false);
+    companionPanel.SetActive(false);
+
+    companionCollectionPanel.SetActive(true);
+
+    inputLocked = true;
+}
+
+public void CloseCompanionCollection()
+{
+    companionCollectionPanel.SetActive(false);
+    mapPanel.SetActive(true);
+
+    UpdateMapLocks();
+
+    inputLocked = true;
+}
+
+private void UpdateCompanionCollection()
+{
+    for (int i = 0; i < collectionCompanionImages.Length; i++)
+    {
+        bool unlocked =
+            completedLocations != null &&
+            i < completedLocations.Length &&
+            completedLocations[i];
+
+        if (collectionCompanionImages[i] != null &&
+            locations != null &&
+            i < locations.Length &&
+            locations[i].companion != null)
+        {
+            collectionCompanionImages[i].sprite = locations[i].companion;
+
+            if (unlocked)
+            {
+                collectionCompanionImages[i].color = Color.white;
+            }
+            else
+            {
+                collectionCompanionImages[i].color = new Color(1f, 1f, 1f, 0.25f);
+            }
+        }
+
+        if (collectionLocks != null &&
+            i < collectionLocks.Length &&
+            collectionLocks[i] != null)
+        {
+            collectionLocks[i].SetActive(!unlocked);
+        }
+    }
+}
+
 
 }
