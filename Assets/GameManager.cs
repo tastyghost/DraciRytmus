@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject titlePanel;
+    public Button continueButton;
     public GameObject companionCollectionPanel;
     public Image[] collectionCompanionImages;
     public GameObject[] collectionLocks;
@@ -46,7 +48,7 @@ public class GameManager : MonoBehaviour
     public GameObject exercisePanel;
     public GameObject successPanel;
     public ParticleSystem confetti;
-    private Transform bowl;
+    public Transform bowl;
     private Transform[] bowlSpots;
     private bool[] bowlSpotTaken;
     private GameObject[] berriesInBowlSpots;
@@ -68,6 +70,7 @@ public class GameManager : MonoBehaviour
 
     private List<WordData> words = new List<WordData>();
     private WordData currentWord;
+    private bool hasReachedMap = false;
 
 
     public float feedbackDelay = 2f;
@@ -79,42 +82,70 @@ public class GameManager : MonoBehaviour
 }
 
 
-    void Awake()
-    {
-        if (exerciseCompanionImage != null)
+   void Awake()
 {
-           exerciseCompanionImage.gameObject.SetActive(false);
-}
-        bowl = GameObject.FindWithTag("Bowl").transform;
-
-        bowlSpots = new Transform[bowl.childCount];
-        bowlSpotTaken = new bool[bowl.childCount];
-        berriesInBowlSpots = new GameObject[bowl.childCount];
-
-        for (int i = 0; i < bowl.childCount; i++)
-        {
-            bowlSpots[i] = bowl.GetChild(i);
-        }
-
-        berrySpots = new Transform[berryTray.childCount];
-        berriesInTray = new GameObject[berryTray.childCount];
-
-        for (int i = 0; i < berryTray.childCount; i++)
-        {
-            berrySpots[i] = berryTray.GetChild(i);
-        }
-        LoadWordsFromCsv();
-        LoadRandomWord();
-        exercisePanel.SetActive(true);
-        PrepareStartVisuals();
-
-    successPanel.SetActive(false);
-    companionPanel.SetActive(false);
-    mapPanel.SetActive(false);
-    locationIntroPanel.SetActive(false);
-    completedLocations = new bool[locations.Length];
-    UpdateMapLocks();
+    // Schovat companiona na začátku hry v hnízdě
+    if (exerciseCompanionImage != null)
+    {
+        exerciseCompanionImage.gameObject.SetActive(false);
     }
+
+    // Najít misku podle tagu Bowl
+    if (bowl == null)
+{
+    Debug.LogError("Bowl is not assigned in GameManager Inspector.");
+    return;
+}
+
+    bowlSpots = new Transform[bowl.childCount];
+    bowlSpotTaken = new bool[bowl.childCount];
+    berriesInBowlSpots = new GameObject[bowl.childCount];
+
+    for (int i = 0; i < bowl.childCount; i++)
+    {
+        bowlSpots[i] = bowl.GetChild(i);
+    }
+
+    // Připravit berry tray
+    berrySpots = new Transform[berryTray.childCount];
+    berriesInTray = new GameObject[berryTray.childCount];
+
+    for (int i = 0; i < berryTray.childCount; i++)
+    {
+        berrySpots[i] = berryTray.GetChild(i);
+    }
+
+    // Připravit dokončené lokace
+    if (locations != null)
+    {
+        completedLocations = new bool[locations.Length];
+    }
+
+    // Načíst slova z CSV
+    LoadWordsFromCsv();
+
+    // Připravit startovní vzhled hnízda
+    PrepareStartVisuals();
+
+    // Nastavit mapové zámky/glowy podle výchozího stavu
+    UpdateMapLocks();
+
+    // Na začátku zobrazit jen titulní obrazovku
+    HideAllPanels();
+
+    if (titlePanel != null)
+    {
+        titlePanel.SetActive(true);
+    }
+
+    // Tlačítko Pokračovat aktivní jen pokud existuje uložená hra
+    if (continueButton != null)
+    {
+        continueButton.interactable = HasSave();
+    }
+
+    inputLocked = true;
+}
 
     public void RegisterBerryInTray(GameObject berry)
     {
@@ -223,6 +254,11 @@ public void CheckAnswer()
 }
     private void ResetBowl()
 {
+    if (berriesInBowlSpots == null)
+    {
+        return;
+    }
+
     GameObject[] berriesToReturn = new GameObject[berriesInBowlSpots.Length];
 
     for (int i = 0; i < berriesInBowlSpots.Length; i++)
@@ -245,6 +281,7 @@ public void CheckAnswer()
         }
     }
 }
+
 private IEnumerator WrongAnswerRoutine()
 {
     inputLocked = true;
@@ -271,6 +308,7 @@ private IEnumerator WrongAnswerRoutine()
 }
 private void LoadWordsFromCsv()
 {
+   words.Clear();
     TextAsset csvFile = Resources.Load<TextAsset>("words");
 
     if (csvFile == null)
@@ -369,6 +407,8 @@ private void ShowSuccessScreen()
 
     UpdateEnergyBubble();
 
+    SaveProgress();
+
     exercisePanel.SetActive(false);
     successPanel.SetActive(true);
 
@@ -444,6 +484,7 @@ public void ContinueAfterCompanion()
         completedLocations[currentLocationIndex] = true;
         UpdateUnlockedLocations();
     }
+    SaveProgress();
 
     companionPanel.SetActive(false);
     mapPanel.SetActive(true);
@@ -455,10 +496,20 @@ public void ContinueAfterCompanion()
 
 private void ShowMapPanel()
 {
+    hasReachedMap = true;
+    isInLocation = false;
+
+    energy = 0;
+    UpdateEnergyBubble();
+
     successPanel.SetActive(false);
     mapPanel.SetActive(true);
 
+    UpdateMapLocks();
+
     inputLocked = true;
+
+    SaveProgress();
 }
 
 public void StartLocationExercise()
@@ -467,6 +518,7 @@ public void StartLocationExercise()
     exercisePanel.SetActive(true);
 
     isInLocation = true;
+    SaveProgress();
 
     energy = 0;
     UpdateEnergyBubble();
@@ -714,12 +766,10 @@ private void UpdateCompanionCollection()
             i < completedLocations.Length &&
             completedLocations[i];
 
-        if (collectionCompanionImages[i] != null &&
-            locations != null &&
-            i < locations.Length &&
-            locations[i].companion != null)
+        if (collectionCompanionImages[i] != null)
         {
-            collectionCompanionImages[i].sprite = locations[i].companion;
+            // Obrázek nepřepisujeme.
+            // Necháme ten, který je ručně nastavený v Inspectoru jako Source Image.
 
             if (unlocked)
             {
@@ -738,6 +788,171 @@ private void UpdateCompanionCollection()
             collectionLocks[i].SetActive(!unlocked);
         }
     }
+}
+
+private bool HasSave()
+{
+    return PlayerPrefs.GetInt("DR_SaveExists", 0) == 1;
+}
+
+private void SaveProgress()
+{
+    PlayerPrefs.SetInt("DR_SaveExists", 1);
+
+    PlayerPrefs.SetInt("DR_Energy", energy);
+    PlayerPrefs.SetInt("DR_CurrentLocationIndex", currentLocationIndex);
+    PlayerPrefs.SetInt("DR_UnlockedLocationCount", unlockedLocationCount);
+    PlayerPrefs.SetInt("DR_IsInLocation", isInLocation ? 1 : 0);
+    PlayerPrefs.SetInt("DR_HasReachedMap", hasReachedMap ? 1 : 0);
+
+    if (completedLocations != null)
+    {
+        for (int i = 0; i < completedLocations.Length; i++)
+        {
+            PlayerPrefs.SetInt("DR_CompletedLocation_" + i, completedLocations[i] ? 1 : 0);
+        }
+    }
+
+    PlayerPrefs.Save();
+}
+
+private bool LoadProgress()
+{
+    if (!HasSave())
+    {
+        return false;
+    }
+
+    energy = PlayerPrefs.GetInt("DR_Energy", 0);
+    currentLocationIndex = PlayerPrefs.GetInt("DR_CurrentLocationIndex", 0);
+    unlockedLocationCount = PlayerPrefs.GetInt("DR_UnlockedLocationCount", 2);
+    isInLocation = PlayerPrefs.GetInt("DR_IsInLocation", 0) == 1;
+    hasReachedMap = PlayerPrefs.GetInt("DR_HasReachedMap", 0) == 1;
+
+    if (completedLocations != null)
+    {
+        for (int i = 0; i < completedLocations.Length; i++)
+        {
+            completedLocations[i] = PlayerPrefs.GetInt("DR_CompletedLocation_" + i, 0) == 1;
+        }
+    }
+
+    UpdateEnergyBubble();
+    UpdateMapLocks();
+
+    return true;
+}
+
+private void DeleteSave()
+{
+    PlayerPrefs.DeleteKey("DR_SaveExists");
+    PlayerPrefs.DeleteKey("DR_Energy");
+    PlayerPrefs.DeleteKey("DR_CurrentLocationIndex");
+    PlayerPrefs.DeleteKey("DR_UnlockedLocationCount");
+    PlayerPrefs.DeleteKey("DR_IsInLocation");
+    PlayerPrefs.DeleteKey("DR_HasReachedMap");
+
+    if (locations != null)
+    {
+        for (int i = 0; i < locations.Length; i++)
+        {
+            PlayerPrefs.DeleteKey("DR_CompletedLocation_" + i);
+        }
+    }
+
+    PlayerPrefs.Save();
+}
+
+private void HideAllPanels()
+{
+    if (titlePanel != null) titlePanel.SetActive(false);
+    if (exercisePanel != null) exercisePanel.SetActive(false);
+    if (successPanel != null) successPanel.SetActive(false);
+    if (mapPanel != null) mapPanel.SetActive(false);
+    if (locationIntroPanel != null) locationIntroPanel.SetActive(false);
+    if (companionPanel != null) companionPanel.SetActive(false);
+    if (companionCollectionPanel != null) companionCollectionPanel.SetActive(false);
+}
+
+public void StartNewGame()
+{
+    DeleteSave();
+
+    energy = 0;
+    currentLocationIndex = 0;
+    unlockedLocationCount = 2;
+    isInLocation = false;
+    hasReachedMap = false;
+
+    if (completedLocations != null)
+    {
+        for (int i = 0; i < completedLocations.Length; i++)
+        {
+            completedLocations[i] = false;
+        }
+    }
+
+    UpdateEnergyBubble();
+    UpdateMapLocks();
+
+    PrepareStartVisuals();
+
+    HideAllPanels();
+    exercisePanel.SetActive(true);
+
+if (words == null || words.Count == 0)
+{
+    LoadWordsFromCsv();
+}
+    LoadRandomWord();
+
+    resultText.text = "";
+    inputLocked = false;
+
+    SaveProgress();
+
+    if (continueButton != null)
+    {
+        continueButton.interactable = true;
+    }
+}
+
+public void ContinueGame()
+{
+    bool loaded = LoadProgress();
+
+    if (!loaded)
+    {
+        Debug.Log("No save found.");
+        return;
+    }
+
+    HideAllPanels();
+
+    if (!hasReachedMap)
+    {
+        PrepareStartVisuals();
+        exercisePanel.SetActive(true);
+        LoadRandomWord();
+        inputLocked = false;
+        return;
+    }
+
+    if (isInLocation)
+    {
+        PrepareLocationVisuals();
+        exercisePanel.SetActive(true);
+        LoadRandomWord();
+        inputLocked = false;
+    }
+    else
+    {
+        mapPanel.SetActive(true);
+        UpdateMapLocks();
+        inputLocked = true;
+    }
+
+    resultText.text = "";
 }
 
 
