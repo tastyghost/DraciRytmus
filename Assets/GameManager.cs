@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public MapMovement mapMovement;
+    public MapPathData[] mapPaths;
+    public RectTransform[][] locationPaths;
     public GameObject titlePanel;
     public Button continueButton;
     public GameObject companionCollectionPanel;
@@ -36,6 +39,7 @@ public class GameManager : MonoBehaviour
 
     public Image locationIntroBackgroundImage;
     public TMP_Text locationIntroText;
+    public Image locationIntroImage;
     public GameObject locationIntroPanel;
     public GameObject mapPanel;
     public GameObject companionPanel;
@@ -586,13 +590,32 @@ public void SelectLocationFromMap(int locationIndex)
     }
 
     currentLocationIndex = locationIndex;
+inputLocked = true;
 
+if (mapMovement != null &&
+    mapPaths != null &&
+    locationIndex < mapPaths.Length &&
+    mapPaths[locationIndex] != null)
+{
+    mapMovement.MoveLunaAlongPath(mapPaths[locationIndex].points, () =>
+    {
+        mapPanel.SetActive(false);
+
+        PrepareLocationIntro();
+
+        locationIntroPanel.SetActive(true);
+        inputLocked = true;
+    });
+}
+else
+{
     mapPanel.SetActive(false);
 
     PrepareLocationIntro();
 
     locationIntroPanel.SetActive(true);
     inputLocked = true;
+}
 }
 
 
@@ -621,6 +644,12 @@ private void PrepareLocationIntro()
     if (locationIntroText != null)
     {
         locationIntroText.text = currentLocation.introText;
+    }
+
+    if (locationIntroImage != null && currentLocation.introImage != null)
+    {
+        locationIntroImage.sprite = currentLocation.introImage;
+        locationIntroImage.gameObject.SetActive(true);
     }
 }
 
