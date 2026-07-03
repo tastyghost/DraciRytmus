@@ -116,10 +116,10 @@ TextureImporter:
       name: Companion_kamen_0
       rect:
         serializedVersion: 2
-        x: 35
-        y: 61
-        width: 585
-        height: 772
+        x: 147
+        y: 57
+        width: 976
+        height: 1139
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

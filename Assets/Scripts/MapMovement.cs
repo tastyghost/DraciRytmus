@@ -65,7 +65,7 @@ public class MapMovement : MonoBehaviour
 
             lunaIcon.anchoredPosition = endPos;
 
-            CreatePathDot(endPos);
+            CreatePathDot(pathPoints[i]);
         }
 
         isMoving = false;
@@ -73,17 +73,41 @@ public class MapMovement : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    private void CreatePathDot(Vector2 position)
+    private void CreatePathDot(RectTransform point)
+{
+    if (pathDotPrefab == null)
     {
-        if (pathDotPrefab == null || pathDotsParent == null)
-        {
-            return;
-        }
-
-        GameObject dot = Instantiate(pathDotPrefab, pathDotsParent);
-        RectTransform dotRect = dot.GetComponent<RectTransform>();
-
-        dotRect.anchoredPosition = position;
-        dotRect.localScale = Vector3.one * dotScale;
+        Debug.LogError("PathDotPrefab is not assigned.");
+        return;
     }
+
+    if (pathDotsParent == null)
+    {
+        Debug.LogError("PathDotsParent is not assigned.");
+        return;
+    }
+
+    GameObject dot = Instantiate(pathDotPrefab, pathDotsParent);
+    RectTransform dotRect = dot.GetComponent<RectTransform>();
+
+    if (dotRect == null)
+    {
+        Debug.LogError("PathDotPrefab does not have RectTransform.");
+        return;
+    }
+
+    Vector2 localPoint;
+
+    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        pathDotsParent,
+        RectTransformUtility.WorldToScreenPoint(null, point.position),
+        null,
+        out localPoint
+    );
+
+    dotRect.anchoredPosition = localPoint;
+    dotRect.localScale = Vector3.one * dotScale;
+
+    Debug.Log("Created path dot at: " + localPoint);
+}
 }

@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
 
     private int unlockedLocationCount = 2;
     private bool[] completedLocations;
+    private int currentMapPosition = -1;
 
     public Image locationIntroBackgroundImage;
     public TMP_Text locationIntroText;
@@ -589,33 +590,47 @@ public void SelectLocationFromMap(int locationIndex)
         return;
     }
 
-    currentLocationIndex = locationIndex;
-inputLocked = true;
-
-if (mapMovement != null &&
-    mapPaths != null &&
-    locationIndex < mapPaths.Length &&
-    mapPaths[locationIndex] != null)
-{
-    mapMovement.MoveLunaAlongPath(mapPaths[locationIndex].points, () =>
+    if (completedLocations != null &&
+        locationIndex < completedLocations.Length &&
+        completedLocations[locationIndex])
     {
+        Debug.Log("Location already completed: " + locationIndex);
+        return;
+    }
+
+    currentLocationIndex = locationIndex;
+    inputLocked = true;
+
+    MapPathData selectedPath = GetPath(currentMapPosition, locationIndex);
+
+    if (mapMovement != null &&
+        selectedPath != null &&
+        selectedPath.points != null &&
+        selectedPath.points.Length > 0)
+    {
+        mapMovement.MoveLunaAlongPath(selectedPath.points, () =>
+        {
+            currentMapPosition = locationIndex;
+
+            mapPanel.SetActive(false);
+
+            PrepareLocationIntro();
+
+            locationIntroPanel.SetActive(true);
+            inputLocked = true;
+        });
+    }
+    else
+    {
+        currentMapPosition = locationIndex;
+
         mapPanel.SetActive(false);
 
         PrepareLocationIntro();
 
         locationIntroPanel.SetActive(true);
         inputLocked = true;
-    });
-}
-else
-{
-    mapPanel.SetActive(false);
-
-    PrepareLocationIntro();
-
-    locationIntroPanel.SetActive(true);
-    inputLocked = true;
-}
+    }
 }
 
 
@@ -833,6 +848,7 @@ private void SaveProgress()
     PlayerPrefs.SetInt("DR_UnlockedLocationCount", unlockedLocationCount);
     PlayerPrefs.SetInt("DR_IsInLocation", isInLocation ? 1 : 0);
     PlayerPrefs.SetInt("DR_HasReachedMap", hasReachedMap ? 1 : 0);
+    PlayerPrefs.SetInt("DR_CurrentMapPosition", currentMapPosition);
 
     if (completedLocations != null)
     {
@@ -857,6 +873,7 @@ private bool LoadProgress()
     unlockedLocationCount = PlayerPrefs.GetInt("DR_UnlockedLocationCount", 2);
     isInLocation = PlayerPrefs.GetInt("DR_IsInLocation", 0) == 1;
     hasReachedMap = PlayerPrefs.GetInt("DR_HasReachedMap", 0) == 1;
+    currentMapPosition = PlayerPrefs.GetInt("DR_CurrentMapPosition", -1);
 
     if (completedLocations != null)
     {
@@ -880,6 +897,7 @@ private void DeleteSave()
     PlayerPrefs.DeleteKey("DR_UnlockedLocationCount");
     PlayerPrefs.DeleteKey("DR_IsInLocation");
     PlayerPrefs.DeleteKey("DR_HasReachedMap");
+    PlayerPrefs.DeleteKey("DR_CurrentMapPosition");
 
     if (locations != null)
     {
@@ -912,6 +930,7 @@ public void StartNewGame()
     unlockedLocationCount = 2;
     isInLocation = false;
     hasReachedMap = false;
+    currentMapPosition = -1;
 
     if (completedLocations != null)
     {
@@ -984,5 +1003,29 @@ public void ContinueGame()
     resultText.text = "";
 }
 
+private MapPathData GetPath(int fromIndex, int toIndex)
+{
+    if (mapPaths == null)
+    {
+        return null;
+    }
+
+    for (int i = 0; i < mapPaths.Length; i++)
+    {
+        if (mapPaths[i] == null)
+        {
+            continue;
+        }
+
+        if (mapPaths[i].fromLocationIndex == fromIndex &&
+            mapPaths[i].toLocationIndex == toIndex)
+        {
+            return mapPaths[i];
+        }
+    }
+
+    Debug.LogWarning("No path found from " + fromIndex + " to " + toIndex);
+    return null;
+}
 
 }
