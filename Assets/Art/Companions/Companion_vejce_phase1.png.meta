@@ -116,10 +116,10 @@ TextureImporter:
       name: Companion_vejce_phase1_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 23
-        width: 285
-        height: 406
+        x: 59
+        y: 7
+        width: 278
+        height: 387
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

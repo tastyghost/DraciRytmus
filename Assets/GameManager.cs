@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject eggHatchingPanel;
+    public Image eggHatchingImage;
+    public Sprite[] eggHatchingSprites;
+    public TMP_Text eggHatchingText;
     public MapMovement mapMovement;
     public MapPathData[] mapPaths;
     public RectTransform[][] locationPaths;
@@ -37,6 +41,8 @@ public class GameManager : MonoBehaviour
     private int unlockedLocationCount = 2;
     private bool[] completedLocations;
     private int currentMapPosition = -1;
+    private int eggHatchingStep = 0;
+    private bool eggHatchingFinished = false;
 
     public Image locationIntroBackgroundImage;
     public TMP_Text locationIntroText;
@@ -148,6 +154,7 @@ public class GameManager : MonoBehaviour
     {
         continueButton.interactable = HasSave();
     }
+    if (eggHatchingPanel != null) eggHatchingPanel.SetActive(false);
 
     inputLocked = true;
 }
@@ -431,7 +438,14 @@ public void NextWord()
     {
         if (isInLocation)
         {
-            ShowCompanionPanel();
+            if (IsFinalLocation())
+            {
+                ShowEggHatchingPanel();
+            }
+            else
+            {
+                ShowCompanionPanel();
+            }
         }
         else
         {
@@ -450,6 +464,7 @@ public void NextWord()
     resultText.text = "";
     inputLocked = false;
 }
+
 
 private void UpdateEnergyBubble()
 {
@@ -1026,6 +1041,66 @@ private MapPathData GetPath(int fromIndex, int toIndex)
 
     Debug.LogWarning("No path found from " + fromIndex + " to " + toIndex);
     return null;
+}
+
+private bool IsFinalLocation()
+{
+    return currentLocationIndex == locations.Length - 1;
+}
+
+private void ShowEggHatchingPanel()
+{
+    successPanel.SetActive(false);
+    eggHatchingPanel.SetActive(true);
+
+    inputLocked = true;
+
+    if (eggHatchingSprites != null && eggHatchingSprites.Length > 0 && eggHatchingImage != null)
+    {
+        eggHatchingImage.sprite = eggHatchingSprites[0];
+    }
+
+    if (eggHatchingText != null)
+    {
+        eggHatchingText.text = "Vejce se začíná hýbat...";
+    }
+}
+
+public void ContinueEggHatching()
+{
+    eggHatchingStep++;
+
+    if (eggHatchingSprites != null &&
+        eggHatchingImage != null &&
+        eggHatchingStep < eggHatchingSprites.Length)
+    {
+        eggHatchingImage.sprite = eggHatchingSprites[eggHatchingStep];
+    }
+
+    if (eggHatchingText != null)
+    {
+        if (eggHatchingStep == 1)
+        {
+            eggHatchingText.text = "Na skořápce se objevila první prasklinka!";
+        }
+        else if (eggHatchingStep == 2)
+        {
+            eggHatchingText.text = "Praskliny se zvětšují...";
+        }
+        else if (eggHatchingStep == 3)
+        {
+            eggHatchingText.text = "Vejce se otevírá!";
+        }
+        else if (eggHatchingStep >= 4)
+        {
+            eggHatchingText.text = "Narodil se nový dráček!";
+        }
+    }
+
+    if (eggHatchingStep >= eggHatchingSprites.Length - 1)
+{
+    eggHatchingFinished = true;
+}
 }
 
 }
