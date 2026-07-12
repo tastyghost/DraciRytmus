@@ -4,6 +4,12 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
+public enum CollectionReturnScreen
+{
+    Title,
+    Map
+}
+
 public class GameManager : MonoBehaviour
 {
     public GameObject eggHatchingPanel;
@@ -42,6 +48,7 @@ public class GameManager : MonoBehaviour
     private bool[] completedLocations;
     private int currentMapPosition = -1;
     private int eggHatchingStep = 0;
+    private bool eggHatchingStarted = false;
     private bool eggHatchingFinished = false;
 
     public Image locationIntroBackgroundImage;
@@ -82,6 +89,7 @@ public class GameManager : MonoBehaviour
     private List<WordData> words = new List<WordData>();
     private WordData currentWord;
     private bool hasReachedMap = false;
+    private CollectionReturnScreen collectionReturnScreen = CollectionReturnScreen.Title;
 
 
     public float feedbackDelay = 2f;
@@ -423,6 +431,7 @@ private void ShowSuccessScreen()
 
     exercisePanel.SetActive(false);
     successPanel.SetActive(true);
+    AudioManager.Instance?.PlaySuccess();
 
     if (confetti != null)
     {
@@ -440,7 +449,7 @@ public void NextWord()
         {
             if (IsFinalLocation())
             {
-                ShowEggHatchingPanel();
+                StartEggHatchingFinale();
             }
             else
             {
@@ -791,10 +800,23 @@ private void UpdateLockedOverlay()
     }
 }
 
-public void OpenCompanionCollection()
+public void OpenCollectionFromTitle()
+{
+    collectionReturnScreen = CollectionReturnScreen.Title;
+    OpenCompanionCollection();
+}
+
+public void OpenCollectionFromMap()
+{
+    collectionReturnScreen = CollectionReturnScreen.Map;
+    OpenCompanionCollection();
+}
+
+private void OpenCompanionCollection()
 {
     UpdateCompanionCollection();
 
+    titlePanel.SetActive(false);
     exercisePanel.SetActive(false);
     successPanel.SetActive(false);
     mapPanel.SetActive(false);
@@ -809,9 +831,16 @@ public void OpenCompanionCollection()
 public void CloseCompanionCollection()
 {
     companionCollectionPanel.SetActive(false);
-    mapPanel.SetActive(true);
 
-    UpdateMapLocks();
+    if (collectionReturnScreen == CollectionReturnScreen.Title)
+    {
+        titlePanel.SetActive(true);
+    }
+    else
+    {
+        mapPanel.SetActive(true);
+        UpdateMapLocks();
+    }
 
     inputLocked = true;
 }
@@ -864,6 +893,9 @@ private void SaveProgress()
     PlayerPrefs.SetInt("DR_IsInLocation", isInLocation ? 1 : 0);
     PlayerPrefs.SetInt("DR_HasReachedMap", hasReachedMap ? 1 : 0);
     PlayerPrefs.SetInt("DR_CurrentMapPosition", currentMapPosition);
+    PlayerPrefs.SetInt("DR_EggHatchingStarted", eggHatchingStarted ? 1 : 0);
+    PlayerPrefs.SetInt("DR_EggHatchingStep", eggHatchingStep);
+    PlayerPrefs.SetInt("DR_EggHatchingFinished", eggHatchingFinished ? 1 : 0);
 
     if (completedLocations != null)
     {
@@ -889,6 +921,9 @@ private bool LoadProgress()
     isInLocation = PlayerPrefs.GetInt("DR_IsInLocation", 0) == 1;
     hasReachedMap = PlayerPrefs.GetInt("DR_HasReachedMap", 0) == 1;
     currentMapPosition = PlayerPrefs.GetInt("DR_CurrentMapPosition", -1);
+    eggHatchingStarted = PlayerPrefs.GetInt("DR_EggHatchingStarted", 0) == 1;
+    eggHatchingStep = PlayerPrefs.GetInt("DR_EggHatchingStep", 0);
+    eggHatchingFinished = PlayerPrefs.GetInt("DR_EggHatchingFinished", 0) == 1;
 
     if (completedLocations != null)
     {
@@ -913,6 +948,9 @@ private void DeleteSave()
     PlayerPrefs.DeleteKey("DR_IsInLocation");
     PlayerPrefs.DeleteKey("DR_HasReachedMap");
     PlayerPrefs.DeleteKey("DR_CurrentMapPosition");
+    PlayerPrefs.DeleteKey("DR_EggHatchingStarted");
+    PlayerPrefs.DeleteKey("DR_EggHatchingStep");
+    PlayerPrefs.DeleteKey("DR_EggHatchingFinished");
 
     if (locations != null)
     {
@@ -934,6 +972,7 @@ private void HideAllPanels()
     if (locationIntroPanel != null) locationIntroPanel.SetActive(false);
     if (companionPanel != null) companionPanel.SetActive(false);
     if (companionCollectionPanel != null) companionCollectionPanel.SetActive(false);
+    if (eggHatchingPanel != null) eggHatchingPanel.SetActive(false);
 }
 
 public void StartNewGame()
@@ -946,6 +985,9 @@ public void StartNewGame()
     isInLocation = false;
     hasReachedMap = false;
     currentMapPosition = -1;
+    eggHatchingStep = 0;
+    eggHatchingStarted = false;
+    eggHatchingFinished = false;
 
     if (completedLocations != null)
     {
@@ -992,6 +1034,12 @@ public void ContinueGame()
 
     HideAllPanels();
 
+    if (eggHatchingStarted && IsFinalLocation())
+    {
+        ShowEggHatchingPanel();
+        return;
+    }
+
     if (!hasReachedMap)
     {
         PrepareStartVisuals();
@@ -1004,9 +1052,18 @@ public void ContinueGame()
     if (isInLocation)
     {
         PrepareLocationVisuals();
-        exercisePanel.SetActive(true);
-        LoadRandomWord();
-        inputLocked = false;
+
+        if (energy >= 5)
+        {
+            successPanel.SetActive(true);
+            inputLocked = true;
+        }
+        else
+        {
+            exercisePanel.SetActive(true);
+            LoadRandomWord();
+            inputLocked = false;
+        }
     }
     else
     {
@@ -1048,59 +1105,131 @@ private bool IsFinalLocation()
     return currentLocationIndex == locations.Length - 1;
 }
 
+private void StartEggHatchingFinale()
+{
+    if (eggHatchingStarted)
+    {
+        ShowEggHatchingPanel();
+        return;
+    }
+
+    eggHatchingStarted = true;
+    eggHatchingStep = 0;
+    eggHatchingFinished = false;
+
+    SaveProgress();
+    ShowEggHatchingPanel();
+}
+
 private void ShowEggHatchingPanel()
 {
-    successPanel.SetActive(false);
-    eggHatchingPanel.SetActive(true);
+    if (successPanel != null)
+    {
+        successPanel.SetActive(false);
+    }
 
+    if (eggHatchingPanel == null)
+    {
+        Debug.LogError("EggHatchingPanel is not assigned in GameManager Inspector.");
+        return;
+    }
+
+    eggHatchingPanel.SetActive(true);
     inputLocked = true;
 
     if (eggHatchingSprites != null && eggHatchingSprites.Length > 0 && eggHatchingImage != null)
     {
-        eggHatchingImage.sprite = eggHatchingSprites[0];
+        eggHatchingStep = Mathf.Clamp(eggHatchingStep, 0, eggHatchingSprites.Length - 1);
+        eggHatchingImage.sprite = eggHatchingSprites[eggHatchingStep];
     }
 
-    if (eggHatchingText != null)
-    {
-        eggHatchingText.text = "Vejce se začíná hýbat...";
-    }
+    UpdateEggHatchingText();
 }
 
 public void ContinueEggHatching()
 {
+    if (!eggHatchingStarted || eggHatchingFinished)
+    {
+        return;
+    }
+
+    if (eggHatchingSprites == null || eggHatchingSprites.Length == 0)
+    {
+        Debug.LogError("Egg hatching sprites are not assigned in GameManager Inspector.");
+        return;
+    }
+
     eggHatchingStep++;
 
-    if (eggHatchingSprites != null &&
-        eggHatchingImage != null &&
-        eggHatchingStep < eggHatchingSprites.Length)
+    if (eggHatchingStep >= eggHatchingSprites.Length - 1)
+    {
+        eggHatchingStep = eggHatchingSprites.Length - 1;
+        eggHatchingFinished = true;
+    }
+
+    if (eggHatchingImage != null)
     {
         eggHatchingImage.sprite = eggHatchingSprites[eggHatchingStep];
     }
 
-    if (eggHatchingText != null)
+    UpdateEggHatchingText();
+
+    if (eggHatchingFinished)
     {
-        if (eggHatchingStep == 1)
-        {
-            eggHatchingText.text = "Na skořápce se objevila první prasklinka!";
-        }
-        else if (eggHatchingStep == 2)
-        {
-            eggHatchingText.text = "Praskliny se zvětšují...";
-        }
-        else if (eggHatchingStep == 3)
-        {
-            eggHatchingText.text = "Vejce se otevírá!";
-        }
-        else if (eggHatchingStep >= 4)
-        {
-            eggHatchingText.text = "Narodil se nový dráček!";
-        }
+        CompleteFinalLocation();
+    }
+    else
+    {
+        SaveProgress();
+    }
+}
+
+private void UpdateEggHatchingText()
+{
+    if (eggHatchingText == null)
+    {
+        return;
     }
 
-    if (eggHatchingStep >= eggHatchingSprites.Length - 1)
-{
-    eggHatchingFinished = true;
+    if (eggHatchingStep <= 0)
+    {
+        eggHatchingText.text = "Vejce se začíná hýbat...";
+    }
+    else if (eggHatchingStep == 1)
+    {
+        eggHatchingText.text = "Na skořápce se objevila první prasklinka!";
+    }
+    else if (eggHatchingStep == 2)
+    {
+        eggHatchingText.text = "Praskliny se zvětšují...";
+    }
+    else if (eggHatchingStep == 3)
+    {
+        eggHatchingText.text = "Vejce se otevírá!";
+    }
+    else if (eggHatchingSprites != null &&
+             eggHatchingSprites.Length > 0 &&
+             eggHatchingStep >= eggHatchingSprites.Length - 1)
+    {
+        eggHatchingText.text = "Výborně!\nTvůj nový kamarád Ejoume už se moc těší na nová dobrodružství s tebou!";
+    }
+    else
+    {
+        eggHatchingText.text = "Narodil se nový dráček!";
+    }
 }
+
+private void CompleteFinalLocation()
+{
+    if (completedLocations != null &&
+        currentLocationIndex >= 0 &&
+        currentLocationIndex < completedLocations.Length)
+    {
+        completedLocations[currentLocationIndex] = true;
+        UpdateUnlockedLocations();
+    }
+
+    SaveProgress();
 }
 
 }

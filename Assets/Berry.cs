@@ -24,6 +24,7 @@ public class Berry : MonoBehaviour, IPointerClickHandler
             gameManager.RemoveFromBowl(gameObject);
             gameManager.ReturnBerryToTray(gameObject);
             isInBowl = false;
+            AudioManager.Instance?.PlayAntiPop();
         }
         else
         {
@@ -32,6 +33,7 @@ public class Berry : MonoBehaviour, IPointerClickHandler
             if (placed)
             {
                 isInBowl = true;
+                AudioManager.Instance?.PlayPop();
             }
         }
     }
