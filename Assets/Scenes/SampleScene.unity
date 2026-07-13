@@ -2801,7 +2801,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!222 &466446038
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9374,7 +9374,7 @@ MonoBehaviour:
   - {fileID: 730229753944420165, guid: cbe7bdf5c55b8ad4aba8ca5cdb39d5a1, type: 3}
   - {fileID: 21300000, guid: b821a2042e9b76641a56c5ca8b655d17, type: 3}
   - {fileID: 955682411621043808, guid: 3ce3d5b712401914590af930659a7bf4, type: 3}
-  eggHatchingText: {fileID: 0}
+  eggHatchingText: {fileID: 869887871}
   mapMovement: {fileID: 668901135}
   mapPaths:
   - pathName: Hnizdo-Louka
@@ -17510,6 +17510,10 @@ Animation:
   m_Animation: {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
   m_Animations:
   - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
+  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
+  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
+  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
+  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
@@ -17532,7 +17536,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1231404613
 RectTransform:
   m_ObjectHideFlags: 0

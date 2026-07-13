@@ -1022,6 +1022,36 @@ if (words == null || words.Count == 0)
     }
 }
 
+public void DebugStartFinalLocation()
+{
+    if (locations == null || locations.Length == 0)
+    {
+        Debug.LogError("No locations are assigned in GameManager.");
+        return;
+    }
+
+    currentLocationIndex = locations.Length - 1;
+    currentMapPosition = currentLocationIndex;
+    unlockedLocationCount = locations.Length;
+    hasReachedMap = true;
+    isInLocation = true;
+    energy = 0;
+    eggHatchingStep = 0;
+    eggHatchingStarted = false;
+    eggHatchingFinished = false;
+
+    HideAllPanels();
+    UpdateEnergyBubble();
+    UpdateMapLocks();
+    PrepareLocationVisuals();
+    ResetBowl();
+    LoadRandomWord();
+
+    exercisePanel.SetActive(true);
+    resultText.text = "";
+    inputLocked = false;
+}
+
 public void ContinueGame()
 {
     bool loaded = LoadProgress();
@@ -1133,7 +1163,7 @@ private void ShowEggHatchingPanel()
         Debug.LogError("EggHatchingPanel is not assigned in GameManager Inspector.");
         return;
     }
-
+    Debug.Log("tady");
     eggHatchingPanel.SetActive(true);
     inputLocked = true;
 
