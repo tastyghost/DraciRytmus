@@ -88,6 +88,20 @@ public class GameManager : MonoBehaviour
 
     private List<WordData> words = new List<WordData>();
     private WordData currentWord;
+    private AudioClip currentWordAudioClip;
+    private AudioClip currentSyllablesAudioClip;
+    private Button wordCardButton;
+    private int wordCardClickCount = 0;
+    private bool wordCardAudioPlaying = false;
+    private const float MinimumPopInterval = 0.2f;
+    private static readonly string[] LocationIntroAudioNames =
+    {
+        "Location-Louka",
+        "Location-Most",
+        "Location-Kamen",
+        "Location-Les",
+        "Location-Vejce"
+    };
     private bool hasReachedMap = false;
     private CollectionReturnScreen collectionReturnScreen = CollectionReturnScreen.Title;
 
@@ -142,6 +156,7 @@ public class GameManager : MonoBehaviour
 
     // Načíst slova z CSV
     LoadWordsFromCsv();
+    SetupWordCardButton();
 
     // Připravit startovní vzhled hnízda
     PrepareStartVisuals();
@@ -350,12 +365,32 @@ private void LoadWordsFromCsv()
 
         string[] values = line.Split(';');
 
-        string word = values[0];
-        int syllables = int.Parse(values[1]);
-        string topic = values[2];
-        string pictureName = values[3];
+        if (values.Length < 6)
+        {
+            Debug.LogWarning("Skipping invalid CSV row " + (i + 1) + ": expected 6 columns.");
+            continue;
+        }
 
-        words.Add(new WordData(word, syllables, topic, pictureName));
+        string word = values[0].Trim();
+
+        if (!int.TryParse(values[1].Trim(), out int syllables))
+        {
+            Debug.LogWarning("Skipping invalid CSV row " + (i + 1) + ": syllable count is not a number.");
+            continue;
+        }
+
+        string topic = values[2].Trim();
+        string pictureName = values[3].Trim();
+        string audioName = values[4].Trim();
+        string syllablesAudioName = values[5].Trim();
+
+        words.Add(new WordData(
+            word,
+            syllables,
+            topic,
+            pictureName,
+            audioName,
+            syllablesAudioName));
     }
 
     Debug.Log("Loaded words: " + words.Count);
@@ -373,6 +408,10 @@ private void LoadRandomWord()
     currentWord = words[index];
 
     correctSyllables = currentWord.syllables;
+    wordCardClickCount = 0;
+    wordCardAudioPlaying = false;
+    currentWordAudioClip = LoadWordCardAudioClip(currentWord.audioName);
+    currentSyllablesAudioClip = LoadWordCardAudioClip(currentWord.syllablesAudioName);
 
     string imageName = currentWord.pictureName.Replace(".png", "");
     Sprite sprite = Resources.Load<Sprite>("WordCards/" + imageName);
@@ -386,6 +425,135 @@ private void LoadRandomWord()
     wordImage.sprite = sprite;
 
     Debug.Log("Current word: " + currentWord.word + ", syllables: " + currentWord.syllables);
+}
+
+private void SetupWordCardButton()
+{
+    if (wordImage == null)
+    {
+        Debug.LogWarning("Word Image is not assigned. Word card audio clicks will be disabled.");
+        return;
+    }
+
+    wordCardButton = wordImage.GetComponent<Button>();
+
+    if (wordCardButton == null)
+    {
+        wordCardButton = wordImage.gameObject.AddComponent<Button>();
+        wordCardButton.targetGraphic = wordImage;
+        wordCardButton.transition = Selectable.Transition.None;
+    }
+
+    wordCardButton.onClick.RemoveListener(OnWordCardClicked);
+    wordCardButton.onClick.AddListener(OnWordCardClicked);
+}
+
+private AudioClip LoadWordCardAudioClip(string fileName)
+{
+    if (string.IsNullOrWhiteSpace(fileName))
+    {
+        Debug.LogWarning("Audio file name is missing for word: " + currentWord.word);
+        return null;
+    }
+
+    string resourceName = fileName.Trim().Replace("\\", "/");
+    int extensionIndex = resourceName.LastIndexOf('.');
+
+    if (extensionIndex >= 0)
+    {
+        resourceName = resourceName.Substring(0, extensionIndex);
+    }
+
+    string resourcePath = "Audio/Words/" + resourceName;
+    AudioClip clip = Resources.Load<AudioClip>(resourcePath);
+
+    if (clip == null)
+    {
+        Debug.LogWarning("Word card audio not found at Resources/" + resourcePath + " for word: " + currentWord.word);
+    }
+
+    return clip;
+}
+
+public void OnWordCardClicked()
+{
+    if (inputLocked || wordCardAudioPlaying || currentWord == null)
+    {
+        return;
+    }
+
+    if (wordCardClickCount == 0)
+    {
+        if (currentWordAudioClip == null)
+        {
+            Debug.LogWarning("Cannot play the word audio for: " + currentWord.word);
+            return;
+        }
+
+        wordCardClickCount = 1;
+        StartCoroutine(PlayWordCardClipRoutine(currentWordAudioClip));
+        return;
+    }
+
+    if (wordCardClickCount == 1)
+    {
+        if (currentSyllablesAudioClip == null)
+        {
+            Debug.LogWarning("Cannot play the syllabified audio for: " + currentWord.word);
+            return;
+        }
+
+        wordCardClickCount = 2;
+        StartCoroutine(PlayWordCardClipRoutine(currentSyllablesAudioClip));
+        return;
+    }
+
+    StartCoroutine(PlaySyllablePopsRoutine(currentWord.syllables));
+}
+
+private IEnumerator PlayWordCardClipRoutine(AudioClip clip)
+{
+    AudioManager audioManager = AudioManager.Instance;
+
+    if (audioManager == null)
+    {
+        Debug.LogWarning("AudioManager is not available.");
+        yield break;
+    }
+
+    wordCardAudioPlaying = true;
+    inputLocked = true;
+
+    audioManager.PlayWordCardClip(clip);
+    yield return new WaitForSeconds(clip.length);
+
+    inputLocked = false;
+    wordCardAudioPlaying = false;
+}
+
+private IEnumerator PlaySyllablePopsRoutine(int syllableCount)
+{
+    AudioManager audioManager = AudioManager.Instance;
+
+    if (audioManager == null)
+    {
+        Debug.LogWarning("AudioManager is not available.");
+        yield break;
+    }
+
+    wordCardAudioPlaying = true;
+    inputLocked = true;
+
+    float popInterval = Mathf.Max(audioManager.PopClipLength, MinimumPopInterval);
+
+    for (int i = 0; i < syllableCount; i++)
+    {
+        audioManager.PlayPop();
+        yield return new WaitForSeconds(popInterval);
+    }
+
+    inputLocked = false;
+    wordCardAudioPlaying = false;
 }
 
 private IEnumerator CorrectAnswerRoutine()
@@ -543,6 +711,8 @@ private void ShowMapPanel()
 
 public void StartLocationExercise()
 {
+    AudioManager.Instance?.StopAudio();
+
     locationIntroPanel.SetActive(false);
     exercisePanel.SetActive(true);
 
@@ -690,6 +860,28 @@ private void PrepareLocationIntro()
         locationIntroImage.sprite = currentLocation.introImage;
         locationIntroImage.gameObject.SetActive(true);
     }
+
+    PlayLocationIntroAudio();
+}
+
+private void PlayLocationIntroAudio()
+{
+    if (currentLocationIndex < 0 || currentLocationIndex >= LocationIntroAudioNames.Length)
+    {
+        Debug.LogWarning("Location intro audio is not configured for location index: " + currentLocationIndex);
+        return;
+    }
+
+    string resourcePath = "Audio/Location/" + LocationIntroAudioNames[currentLocationIndex];
+    AudioClip introClip = Resources.Load<AudioClip>(resourcePath);
+
+    if (introClip == null)
+    {
+        Debug.LogWarning("Location intro audio not found at Resources/" + resourcePath);
+        return;
+    }
+
+    AudioManager.Instance?.PlayLocationIntroClip(introClip);
 }
 
 private void PrepareStartVisuals()

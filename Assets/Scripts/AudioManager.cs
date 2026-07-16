@@ -4,6 +4,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     private const float DefaultEffectsVolume = 0.8f;
+    private const float VoiceVolumeScale = 8f;
 
     public static AudioManager Instance { get; private set; }
 
@@ -12,6 +13,11 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip successClip;
 
     private AudioSource audioSource;
+
+    public float PopClipLength
+    {
+        get { return popClip != null ? popClip.length : 0f; }
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureInstanceExists()
@@ -58,6 +64,25 @@ public class AudioManager : MonoBehaviour
         PlayEffect(successClip);
     }
 
+    public void PlayWordCardClip(AudioClip clip)
+    {
+        PlayEffect(clip, VoiceVolumeScale);
+    }
+
+    public void PlayLocationIntroClip(AudioClip clip)
+    {
+        StopAudio();
+        PlayEffect(clip, VoiceVolumeScale);
+    }
+
+    public void StopAudio()
+    {
+        if (audioSource != null)
+        {
+            audioSource.Stop();
+        }
+    }
+
     private void LoadMissingClips()
     {
         if (popClip == null)
@@ -76,13 +101,13 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void PlayEffect(AudioClip clip)
+    private void PlayEffect(AudioClip clip, float volumeScale = 1f)
     {
         if (audioSource == null || clip == null)
         {
             return;
         }
 
-        audioSource.PlayOneShot(clip);
+        audioSource.PlayOneShot(clip, volumeScale);
     }
 }

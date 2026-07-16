@@ -1,60 +1,60 @@
-Word;Syllables;Topic;PictureName
-dum;1;doma;Word_card_dum.png
-okno;2;doma;Word_card_okno.png
-pohovka;3;doma;Word_card_pohovka.png
-televize;4;doma;Word_card_televize.png
-dvere;2;doma;Word_card_dvere.png
-zrcadlo;3;doma;Word_card_zrcadlo.png
-mikrovlnka;4;doma;Word_card_mikrovlnka.png
-vana;2;doma;Word_card_vana.png
-lednice;3;doma;Word_card_lednice.png
-postel;2;doma;Word_card_postel.png
-vlak;1;dopravn¡ prostýedky;Word_card_vlak.png
-auto;2;dopravn¡ prostýedky;Word_card_auto.png
-raketa;3;dopravn¡ prostýedky;Word_card_raketa.png
-kolobezka;4;dopravn¡ prostýedky;Word_card_kolobezka.png
-tank;1;dopravn¡ prostýedky;Word_card_tank.png
-traktor;2;dopravn¡ prostýedky;Word_card_traktor.png
-autobus;3;dopravn¡ prostýedky;Word_card_autobus.png
-kombajn;2;dopravn¡ prostýedky;Word_card_kombajn.png
-letadlo;3;dopravn¡ prostýedky;Word_card_letadlo.png
-kolo;2;dopravn¡ prostýedky;Word_card_kolo.png
-motorka;3;dopravn¡ prostýedky;Word_card_motorka.png
-syr;1;j¡dlo;Word_card_syr.png
-sunka;2;j¡dlo;Word_card_sunka.png
-spagety;3;j¡dlo;Word_card_spagety.png
-marmelada;4;j¡dlo;Word_card_marmelada.png
-med;1;j¡dlo;Word_card_med.png
-meloun;2;j¡dlo;Word_card_meloun.png
-zmrzlina;3;j¡dlo;Word_card_zmrzlina.png
-cokolada;4;j¡dlo;Word_card_cokolada.png
-dort;1;j¡dlo;Word_card_dort.png
-pizza;2;j¡dlo;Word_card_pizza.png
-jahody;3;j¡dlo;Word_card_jahody.png
-brokolice;4;j¡dlo;Word_card_brokolice.png
-strom;1;pý¡roda;Word_card_strom.png
-trava;2;pý¡roda;Word_card_trava.png
-maliny;3;pý¡roda;Word_card_maliny.png
-pampeliska;4;pý¡roda;Word_card_pampeliska.png
-ker;1;pý¡roda;Word_card_ker.png
-kamen;2;pý¡roda;Word_card_kamen.png
-boruvky;3;pý¡roda;Word_card_boruvky.png
-sedmikraska;4;pý¡roda;Word_card_sedmikraska.png
-mrak;1;pý¡roda;Word_card_mrak.png
-slunicko;3;pý¡roda;Word_card_slunicko.png
-beruska;3;pý¡roda;Word_card_beruska.png
-snih;1;pý¡roda;Word_card_snih.png
-houba;2;pý¡roda;Word_card_houba.png
-brouk;1;pý¡roda;Word_card_brouk.png
-motyl;2;pý¡roda;Word_card_motyl.png
-pes;1;zv¡ýata;Word_card_pes.png
-kocka;2;zv¡ýata;Word_card_kocka.png
-krokodyl;3;zv¡ýata;Word_card_krokodyl.png
-nosorozec;4;zv¡ýata;Word_card_nosorozec.png
-slon;1;zv¡ýata;Word_card_slon.png
-prase;2;zv¡ýata;Word_card_prase.png
-zirafa;3;zv¡ýata;Word_card_zirafa.png
-chobotnice;4;zv¡ýata;Word_card_chobotnice.png
-had;1;zv¡ýata;Word_card_had.png
-kohout;2;zv¡ýata;Word_card_kohout.png
-slepice;3;zv¡ýata;Word_card_slepice.png
+Word;Syllables;Topic;PictureName;AudioName;SyllablesAudioName
+dum;1;doma;Word_card_dum.png;dum.wav;syllables-dum.wav
+okno;2;doma;Word_card_okno.png;okno.wav;syllables-okno.wav
+pohovka;3;doma;Word_card_pohovka.png;pohovka.wav;syllables-pohovka.wav
+televize;4;doma;Word_card_televize.png;televize.wav;syllables-televize.wav
+dvere;2;doma;Word_card_dvere.png;dvere.wav;syllables-dvere.wav
+zrcadlo;3;doma;Word_card_zrcadlo.png;zrcadlo.wav;syllables-zrcadlo.wav
+mikrovlnka;4;doma;Word_card_mikrovlnka.png;mikrovlnka.wav;syllables-mikrovlnka.wav
+vana;2;doma;Word_card_vana.png;vana.wav;syllables-vana.wav
+lednice;3;doma;Word_card_lednice.png;lednice.wav;syllables-lednice.wav
+postel;2;doma;Word_card_postel.png;postel.wav;syllables-postel.wav
+vlak;1;dopravn¡ prostýedky;Word_card_vlak.png;vlak.wav;syllables-vlak.wav
+auto;2;dopravn¡ prostýedky;Word_card_auto.png;auto.wav;syllables-auto.wav
+raketa;3;dopravn¡ prostýedky;Word_card_raketa.png;raketa.wav;syllables-raketa.wav
+kolobezka;4;dopravn¡ prostýedky;Word_card_kolobezka.png;kolobezka.wav;syllables-kolobezka.wav
+tank;1;dopravn¡ prostýedky;Word_card_tank.png;tank.wav;syllables-tank.wav
+traktor;2;dopravn¡ prostýedky;Word_card_traktor.png;traktor.wav;syllables-traktor.wav
+autobus;3;dopravn¡ prostýedky;Word_card_autobus.png;autobus.wav;syllables-autobus.wav
+kombajn;2;dopravn¡ prostýedky;Word_card_kombajn.png;kombajn.wav;syllables-kombajn.wav
+letadlo;3;dopravn¡ prostýedky;Word_card_letadlo.png;letadlo.wav;syllables-letadlo.wav
+kolo;2;dopravn¡ prostýedky;Word_card_kolo.png;kolo.wav;syllables-kolo.wav
+motorka;3;dopravn¡ prostýedky;Word_card_motorka.png;motorka.wav;syllables-motorka.wav
+syr;1;j¡dlo;Word_card_syr.png;syr.wav;syllables-syr.wav
+sunka;2;j¡dlo;Word_card_sunka.png;sunka.wav;syllables-sunka.wav
+spagety;3;j¡dlo;Word_card_spagety.png;spagety.wav;syllables-spagety.wav
+marmelada;4;j¡dlo;Word_card_marmelada.png;marmelada.wav;syllables-marmelada.wav
+med;1;j¡dlo;Word_card_med.png;med.wav;syllables-med.wav
+meloun;2;j¡dlo;Word_card_meloun.png;meloun.wav;syllables-meloun.wav
+zmrzlina;3;j¡dlo;Word_card_zmrzlina.png;zmrzlina.wav;syllables-zmrzlina.wav
+cokolada;4;j¡dlo;Word_card_cokolada.png;cokolada.wav;syllables-cokolada.wav
+dort;1;j¡dlo;Word_card_dort.png;dort.wav;syllables-dort.wav
+pizza;2;j¡dlo;Word_card_pizza.png;pizza.wav;syllables-pizza.wav
+jahody;3;j¡dlo;Word_card_jahody.png;jahody.wav;syllables-jahody.wav
+brokolice;4;j¡dlo;Word_card_brokolice.png;brokolice.wav;syllables-brokolice.wav
+strom;1;pý¡roda;Word_card_strom.png;strom.wav;syllables-strom.wav
+trava;2;pý¡roda;Word_card_trava.png;trava.wav;syllables-trava.wav
+maliny;3;pý¡roda;Word_card_maliny.png;maliny.wav;syllables-maliny.wav
+pampeliska;4;pý¡roda;Word_card_pampeliska.png;pampeliska.wav;syllables-pampeliska.wav
+ker;1;pý¡roda;Word_card_ker.png;ker.wav;syllables-ker.wav
+kamen;2;pý¡roda;Word_card_kamen.png;kamen.wav;syllables-kamen.wav
+boruvky;3;pý¡roda;Word_card_boruvky.png;boruvky.wav;syllables-boruvky.wav
+sedmikraska;4;pý¡roda;Word_card_sedmikraska.png;sedmikraska.wav;syllables-sedmikraska.wav
+mrak;1;pý¡roda;Word_card_mrak.png;mrak.wav;syllables-mrak.wav
+slunicko;3;pý¡roda;Word_card_slunicko.png;slunicko.wav;syllables-slunicko.wav
+beruska;3;pý¡roda;Word_card_beruska.png;beruska.wav;syllables-beruska.wav
+snih;1;pý¡roda;Word_card_snih.png;snih.wav;syllables-snih.wav
+houba;2;pý¡roda;Word_card_houba.png;houba.wav;syllables-houba.wav
+brouk;1;pý¡roda;Word_card_brouk.png;brouk.wav;syllables-brouk.wav
+motyl;2;pý¡roda;Word_card_motyl.png;motyl.wav;syllables-motyl.wav
+pes;1;zv¡ýata;Word_card_pes.png;pes.wav;syllables-pes.wav
+kocka;2;zv¡ýata;Word_card_kocka.png;kocka.wav;syllables-kocka.wav
+krokodyl;3;zv¡ýata;Word_card_krokodyl.png;krokodyl.wav;syllables-krokodyl.wav
+nosorozec;4;zv¡ýata;Word_card_nosorozec.png;nosorozec.wav;syllables-nosorozec.wav
+slon;1;zv¡ýata;Word_card_slon.png;slon.wav;syllables-slon.wav
+prase;2;zv¡ýata;Word_card_prase.png;prase.wav;syllables-prase.wav
+zirafa;3;zv¡ýata;Word_card_zirafa.png;zirafa.wav;syllables-zirafa.wav
+chobotnice;4;zv¡ýata;Word_card_chobotnice.png;chobotnice.wav;syllables-chobotnice.wav
+had;1;zv¡ýata;Word_card_had.png;had.wav;syllables-had.wav
+kohout;2;zv¡ýata;Word_card_kohout.png;kohout.wav;syllables-kohout.wav
+slepice;3;zv¡ýata;Word_card_slepice.png;slepice.wav;syllables-slepice.wav

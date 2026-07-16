@@ -9077,6 +9077,7 @@ GameObject:
   - component: {fileID: 799515189}
   - component: {fileID: 799515190}
   - component: {fileID: 799515191}
+  - component: {fileID: 799515192}
   m_Layer: 5
   m_Name: CompanionDuringExercise
   m_TagString: Untagged
@@ -9141,6 +9142,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!111 &799515192
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799515188}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: 3fec44240f4e8a44b8f38408f414b1b9, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 3fec44240f4e8a44b8f38408f414b1b9, type: 2}
+  m_WrapMode: 2
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &803973688
 GameObject:
   m_ObjectHideFlags: 0
@@ -17510,10 +17528,6 @@ Animation:
   m_Animation: {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
   m_Animations:
   - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
-  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
-  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
-  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
-  - {fileID: 7400000, guid: 20ff96a97a466dd47b55f7bfc4ffa345, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
@@ -17536,7 +17550,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1231404613
 RectTransform:
   m_ObjectHideFlags: 0
