@@ -7,7 +7,8 @@ using System.Collections.Generic;
 public enum CollectionReturnScreen
 {
     Title,
-    Map
+    Map,
+    Settings
 }
 
 public class GameManager : MonoBehaviour
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour
     public GameObject titlePanel;
     public Button continueButton;
     public GameObject companionCollectionPanel;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject bottomBar;
     public Image[] collectionCompanionImages;
     public GameObject[] collectionLocks;
     public Vector2 overlayForMiddleAndTopPosition;
@@ -685,6 +688,7 @@ public void ContinueAfterCompanion()
 
     companionPanel.SetActive(false);
     mapPanel.SetActive(true);
+    SetBottomBarVisible(true);
 
     ResetBowl();
     resultText.text = "";
@@ -701,6 +705,7 @@ private void ShowMapPanel()
 
     successPanel.SetActive(false);
     mapPanel.SetActive(true);
+    SetBottomBarVisible(true);
 
     UpdateMapLocks();
 
@@ -794,6 +799,7 @@ public void SelectLocationFromMap(int locationIndex)
 
     currentLocationIndex = locationIndex;
     inputLocked = true;
+    SetBottomBarVisible(false);
 
     MapPathData selectedPath = GetPath(currentMapPosition, locationIndex);
 
@@ -1004,18 +1010,67 @@ public void OpenCollectionFromMap()
     OpenCompanionCollection();
 }
 
+public void OpenMapFromBottomBar()
+{
+    if (!CanUseBottomBar())
+    {
+        return;
+    }
+
+    HideAllPanels();
+    mapPanel.SetActive(true);
+    UpdateMapLocks();
+    SetBottomBarVisible(true);
+    inputLocked = true;
+}
+
+public void OpenCollectionFromBottomBar()
+{
+    if (!CanUseBottomBar() || companionCollectionPanel.activeSelf)
+    {
+        return;
+    }
+
+    collectionReturnScreen =
+        settingsPanel != null && settingsPanel.activeSelf
+            ? CollectionReturnScreen.Settings
+            : CollectionReturnScreen.Map;
+
+    OpenCompanionCollection();
+}
+
+public void OpenSettingsFromBottomBar()
+{
+    if (!CanUseBottomBar() || settingsPanel == null || settingsPanel.activeSelf)
+    {
+        return;
+    }
+
+    HideAllPanels();
+    settingsPanel.SetActive(true);
+    SetBottomBarVisible(true);
+    inputLocked = true;
+}
+
+public void OpenMenuFromBottomBar()
+{
+    if (!CanUseBottomBar())
+    {
+        return;
+    }
+
+    HideAllPanels();
+    titlePanel.SetActive(true);
+    inputLocked = true;
+}
+
 private void OpenCompanionCollection()
 {
     UpdateCompanionCollection();
 
-    titlePanel.SetActive(false);
-    exercisePanel.SetActive(false);
-    successPanel.SetActive(false);
-    mapPanel.SetActive(false);
-    locationIntroPanel.SetActive(false);
-    companionPanel.SetActive(false);
-
+    HideAllPanels();
     companionCollectionPanel.SetActive(true);
+    SetBottomBarVisible(collectionReturnScreen != CollectionReturnScreen.Title);
 
     inputLocked = true;
 }
@@ -1027,11 +1082,19 @@ public void CloseCompanionCollection()
     if (collectionReturnScreen == CollectionReturnScreen.Title)
     {
         titlePanel.SetActive(true);
+        SetBottomBarVisible(false);
+    }
+    else if (collectionReturnScreen == CollectionReturnScreen.Settings &&
+             settingsPanel != null)
+    {
+        settingsPanel.SetActive(true);
+        SetBottomBarVisible(true);
     }
     else
     {
         mapPanel.SetActive(true);
         UpdateMapLocks();
+        SetBottomBarVisible(true);
     }
 
     inputLocked = true;
@@ -1165,6 +1228,26 @@ private void HideAllPanels()
     if (companionPanel != null) companionPanel.SetActive(false);
     if (companionCollectionPanel != null) companionCollectionPanel.SetActive(false);
     if (eggHatchingPanel != null) eggHatchingPanel.SetActive(false);
+    if (settingsPanel != null) settingsPanel.SetActive(false);
+    SetBottomBarVisible(false);
+}
+
+private bool CanUseBottomBar()
+{
+    if (bottomBar == null || !bottomBar.activeInHierarchy)
+    {
+        return false;
+    }
+
+    return mapMovement == null || !mapMovement.IsMoving();
+}
+
+private void SetBottomBarVisible(bool isVisible)
+{
+    if (bottomBar != null)
+    {
+        bottomBar.SetActive(isVisible);
+    }
 }
 
 public void StartNewGame()
@@ -1291,6 +1374,7 @@ public void ContinueGame()
     {
         mapPanel.SetActive(true);
         UpdateMapLocks();
+        SetBottomBarVisible(true);
         inputLocked = true;
     }
 
