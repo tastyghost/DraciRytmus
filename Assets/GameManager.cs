@@ -8,7 +8,8 @@ public enum CollectionReturnScreen
 {
     Title,
     Map,
-    Settings
+    Settings,
+    EggFinal
 }
 
 public class GameManager : MonoBehaviour
@@ -506,12 +507,10 @@ public void OnWordCardClicked()
             return;
         }
 
-        wordCardClickCount = 2;
+        wordCardClickCount = 0;
         StartCoroutine(PlayWordCardClipRoutine(currentSyllablesAudioClip));
         return;
     }
-
-    StartCoroutine(PlaySyllablePopsRoutine(currentWord.syllables));
 }
 
 private IEnumerator PlayWordCardClipRoutine(AudioClip clip)
@@ -1031,10 +1030,18 @@ public void OpenCollectionFromBottomBar()
         return;
     }
 
-    collectionReturnScreen =
-        settingsPanel != null && settingsPanel.activeSelf
-            ? CollectionReturnScreen.Settings
-            : CollectionReturnScreen.Map;
+    if (eggHatchingFinished && eggHatchingPanel != null && eggHatchingPanel.activeSelf)
+    {
+        collectionReturnScreen = CollectionReturnScreen.EggFinal;
+    }
+    else if (settingsPanel != null && settingsPanel.activeSelf)
+    {
+        collectionReturnScreen = CollectionReturnScreen.Settings;
+    }
+    else
+    {
+        collectionReturnScreen = CollectionReturnScreen.Map;
+    }
 
     OpenCompanionCollection();
 }
@@ -1089,6 +1096,11 @@ public void CloseCompanionCollection()
     {
         settingsPanel.SetActive(true);
         SetBottomBarVisible(true);
+    }
+    else if (collectionReturnScreen == CollectionReturnScreen.EggFinal &&
+             eggHatchingFinished)
+    {
+        ShowEggHatchingPanel();
     }
     else
     {
@@ -1441,6 +1453,7 @@ private void ShowEggHatchingPanel()
     }
     Debug.Log("tady");
     eggHatchingPanel.SetActive(true);
+    SetBottomBarVisible(eggHatchingFinished);
     inputLocked = true;
 
     if (eggHatchingSprites != null && eggHatchingSprites.Length > 0 && eggHatchingImage != null)
@@ -1536,6 +1549,7 @@ private void CompleteFinalLocation()
     }
 
     SaveProgress();
+    SetBottomBarVisible(true);
 }
 
 }
